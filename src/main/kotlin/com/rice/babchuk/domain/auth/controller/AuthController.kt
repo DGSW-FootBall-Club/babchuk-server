@@ -4,6 +4,7 @@ import com.rice.babchuk.domain.auth.dto.request.LoginRequest
 import com.rice.babchuk.domain.auth.dto.request.SignUpRequest
 import com.rice.babchuk.domain.auth.dto.request.ReissueRequest
 import com.rice.babchuk.domain.auth.service.AuthService
+import com.rice.babchuk.domain.match.dto.request.CreateMatchRequest
 import com.rice.babchuk.global.common.dto.BaseResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -23,8 +24,9 @@ class AuthController(
 
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다")
-    fun signup(@Valid @RequestBody request: SignUpRequest) =
-        BaseResponse.of(authService.signup(request), message = "회원가입 성공")
+    fun signup(
+        @Valid @RequestBody request: SignUpRequest
+    ) = authService.signup(request).let { BaseResponse.success(message = "회원가입 성공") }
 
     @PostMapping("/reissue")
     @Operation(

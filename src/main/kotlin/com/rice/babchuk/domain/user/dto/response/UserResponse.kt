@@ -5,6 +5,8 @@ import com.rice.babchuk.domain.auth.domain.enum.SkillType
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class UserResponse(
+    @Schema(example = "0")
+    val id: Long,
     val profileImage: String,
     var nickname: String,
     @Schema(description = "학년반번호", example = "3307")

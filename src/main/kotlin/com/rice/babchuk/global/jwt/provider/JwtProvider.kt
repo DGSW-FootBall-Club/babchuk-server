@@ -32,20 +32,20 @@ class JwtProvider(
     /**
      * Access Token 생성
      */
-    fun generateAccessToken(userId: String) =
-        generateToken(userId, accessTokenExpiration)
+    fun generateAccessToken(username: String) =
+        generateToken(username, accessTokenExpiration)
 
     /**
      * Refresh Token 생성
      */
-    fun generateRefreshToken(userId: String) =
-        generateToken(userId, refreshTokenExpiration)
+    fun generateRefreshToken(username: String) =
+        generateToken(username, refreshTokenExpiration)
 
-    private fun generateToken(userId: String, expiration: Long): String {
+    private fun generateToken(username: String, expiration: Long): String {
         val now = Date()
 
         return Jwts.builder()
-            .subject(userId)
+            .subject(username)
             .issuedAt(now)
             .expiration(Date(now.time + expiration))
             .signWith(key)
@@ -64,19 +64,19 @@ class JwtProvider(
      * Authentication 생성
      */
     fun getAuthentication(token: String): UsernamePasswordAuthenticationToken {
-        val userId = getUserIdFromToken(token)
+        val username = getUserNameFromToken(token)
 
         return UsernamePasswordAuthenticationToken(
-            userId,
+            username,
             null,
             listOf(SimpleGrantedAuthority("ROLE_USER"))
         )
     }
 
     /**
-     * userId 추출
+     * userName 추출
      */
-    fun getUserIdFromToken(token: String): String =
+    fun getUserNameFromToken(token: String): String =
         parser.parseSignedClaims(token).payload.subject
 
     /**

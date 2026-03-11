@@ -22,33 +22,35 @@ class AuthServiceImpl(
 ) : AuthService {
 
     override fun login(request: LoginRequest): JwtResponse {
-        val user = userRepository.findByUserid(request.userid) ?: throw CustomException(AuthError.USER_NOT_FOUND)
+        val user = userRepository.findByUsername(request.username)
+            ?: throw CustomException(AuthError.USER_NOT_FOUND)
 
         if (!passwordEncoder.matches(request.password, user.password)) {
             throw CustomException(AuthError.INVALID_PASSWORD)
         }
 
-        val accessToken = jwtProvider.generateAccessToken(user.id.toString())
-        val refreshToken = jwtProvider.generateRefreshToken(user.id.toString())
+        // JWT 발급 (username 기준)
+        val accessToken = jwtProvider.generateAccessToken(user.username)
+        val refreshToken = jwtProvider.generateRefreshToken(user.username)
 
-        refreshTokenRepository.save(
-            user.id.toString(), refreshToken, 604800000
-        )
+        // RefreshToken 저장
+        refreshTokenRepository.save(user.username, refreshToken, 604800000)
 
         return JwtResponse(
-            accessToken = accessToken, refreshToken = refreshToken
+            accessToken = accessToken,
+            refreshToken = refreshToken
         )
     }
 
     override fun signup(request: SignUpRequest) {
-        if (userRepository.existsByUserid(request.userid)) {
+        if (userRepository.existsByUsername(request.username)) {
             throw CustomException(AuthError.USER_ALREADY_EXISTS)
         }
 
         val encodedPassword = passwordEncoder.encode(request.password)
         val user = User(
             profileImage = request.profileImage,
-            userid = request.userid,
+            username = request.username,
             password = encodedPassword,
             nickname = request.nickname,
             grade = request.grade,
@@ -60,27 +62,27 @@ class AuthServiceImpl(
     }
 
     override fun reissue(refreshToken: String): JwtResponse {
-
         if (!jwtProvider.validateToken(refreshToken)) {
             throw CustomException(AuthError.INVALID_REFRESH_TOKEN)
         }
 
-        val userId = jwtProvider.getUserIdFromToken(refreshToken)
+        val username = jwtProvider.getUserNameFromToken(refreshToken)
 
         val savedRefreshToken =
-            refreshTokenRepository.get(userId) ?: throw CustomException(AuthError.INVALID_REFRESH_TOKEN)
+            refreshTokenRepository.get(username) ?: throw CustomException(AuthError.INVALID_REFRESH_TOKEN)
 
         if (savedRefreshToken != refreshToken) {
             throw CustomException(AuthError.INVALID_REFRESH_TOKEN)
         }
 
-        val user = userRepository.findById(java.util.UUID.fromString(userId))
-            .orElseThrow { CustomException(AuthError.USER_NOT_FOUND) }
+        val user = userRepository.findByUsername(username)
+            ?: throw CustomException(AuthError.USER_NOT_FOUND)
 
-        val newAccessToken = jwtProvider.generateAccessToken(user.id.toString())
+        val newAccessToken = jwtProvider.generateAccessToken(user.username)
 
         return JwtResponse(
-            accessToken = newAccessToken, refreshToken = refreshToken
+            accessToken = newAccessToken,
+            refreshToken = refreshToken
         )
     }
 }

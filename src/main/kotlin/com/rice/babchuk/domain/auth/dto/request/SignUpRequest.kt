@@ -15,7 +15,7 @@ data class SignUpRequest(
 
     @field:NotBlank
     @Schema(description = "사용자 ID", example = "testuser")
-    val userid: String,
+    val username: String,
 
     @field:NotBlank
     @Schema(description = "비밀번호", example = "test123")

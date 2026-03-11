@@ -9,16 +9,16 @@ class RefreshTokenRepository(
     private val redisTemplate: StringRedisTemplate
 ) {
 
-    fun save(userId: String, refreshToken: String, expiration: Long) {
+    fun save(userName: String, refreshToken: String, expiration: Long) {
         redisTemplate.opsForValue()
-            .set("refresh:$userId", refreshToken, expiration, TimeUnit.MILLISECONDS)
+            .set("refresh:$userName", refreshToken, expiration, TimeUnit.MILLISECONDS)
     }
 
-    fun get(userId: String): String? {
-        return redisTemplate.opsForValue().get("refresh:$userId")
+    fun get(userName: String): String? {
+        return redisTemplate.opsForValue().get("refresh:$userName")
     }
 
-    fun delete(userId: String) {
-        redisTemplate.delete("refresh:$userId")
+    fun delete(userName: String) {
+        redisTemplate.delete("refresh:$userName")
     }
 }
