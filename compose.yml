@@ -1,0 +1,23 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: babchuk-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  mysql:
+    image: mysql:latest
+    container_name: babchuk-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: babchuk
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  redis_data:
+  mysql_data:
