@@ -1,6 +1,7 @@
 package com.rice.babchuk.domain.match.service.Impl
 
 import com.rice.babchuk.domain.match.dto.request.CreateMatchRequest
+import com.rice.babchuk.domain.match.dto.response.MatchResponse
 import com.rice.babchuk.domain.match.error.MatchError
 import com.rice.babchuk.domain.match.mapper.MatchMapper
 import com.rice.babchuk.domain.match.repository.MatchRepository
@@ -29,5 +30,10 @@ class MatchServiceImpl(
         matchRepository.save(
             MatchMapper.toEntity(request, teamACaptain, teamBCaptain)
         )
+    }
+
+    override fun getMatches(): List<MatchResponse> {
+        return matchRepository.findAllWithCaptains()
+            .map { MatchMapper.toResponse(it) }
     }
 }

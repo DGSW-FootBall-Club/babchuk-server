@@ -5,7 +5,7 @@ import com.rice.babchuk.domain.user.dto.response.UserResponse
 import org.springframework.stereotype.Component
 
 @Component
-class UserMapper {
+object UserMapper {
 
     fun toUserResponse(user: User): UserResponse {
         return UserResponse(

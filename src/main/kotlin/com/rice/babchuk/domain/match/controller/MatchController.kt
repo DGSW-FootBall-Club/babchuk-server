@@ -6,6 +6,7 @@ import com.rice.babchuk.global.common.dto.BaseResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -23,4 +24,9 @@ class MatchController(
         @RequestBody @Valid request: CreateMatchRequest
     ) = matchService.createMatch(request)
         .let { BaseResponse.success(message = "매치 생성 성공") }
+
+    @GetMapping
+    @Operation(summary = "매치 조회", description = "모든 매치를 조회합니다")
+    fun getAllMatches() =
+        BaseResponse.of(matchService.getMatches(), message = "매치 조회 성공")
 }
