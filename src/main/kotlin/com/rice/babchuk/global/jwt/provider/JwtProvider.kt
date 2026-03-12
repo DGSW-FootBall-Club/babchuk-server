@@ -32,20 +32,20 @@ class JwtProvider(
     /**
      * Access Token 생성
      */
-    fun generateAccessToken(username: String) =
-        generateToken(username, accessTokenExpiration)
+    fun generateAccessToken(userId: Long) =
+        generateToken(userId, accessTokenExpiration)
 
     /**
      * Refresh Token 생성
      */
-    fun generateRefreshToken(username: String) =
-        generateToken(username, refreshTokenExpiration)
+    fun generateRefreshToken(userId: Long) =
+        generateToken(userId, refreshTokenExpiration)
 
-    private fun generateToken(username: String, expiration: Long): String {
+    private fun generateToken(userId: Long, expiration: Long): String {
         val now = Date()
 
         return Jwts.builder()
-            .subject(username)
+            .subject(userId.toString())
             .issuedAt(now)
             .expiration(Date(now.time + expiration))
             .signWith(key)

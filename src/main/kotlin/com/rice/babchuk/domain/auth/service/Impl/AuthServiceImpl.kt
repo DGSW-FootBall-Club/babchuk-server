@@ -29,11 +29,9 @@ class AuthServiceImpl(
             throw CustomException(AuthError.INVALID_PASSWORD)
         }
 
-        // JWT 발급 (username 기준)
-        val accessToken = jwtProvider.generateAccessToken(user.username)
-        val refreshToken = jwtProvider.generateRefreshToken(user.username)
+        val accessToken = jwtProvider.generateAccessToken(user.id)
+        val refreshToken = jwtProvider.generateRefreshToken(user.id)
 
-        // RefreshToken 저장
         refreshTokenRepository.save(user.username, refreshToken, 604800000)
 
         return JwtResponse(
@@ -78,7 +76,7 @@ class AuthServiceImpl(
         val user = userRepository.findByUsername(username)
             ?: throw CustomException(AuthError.USER_NOT_FOUND)
 
-        val newAccessToken = jwtProvider.generateAccessToken(user.username)
+        val newAccessToken = jwtProvider.generateAccessToken(user.id)
 
         return JwtResponse(
             accessToken = newAccessToken,

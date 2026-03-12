@@ -1,29 +1,29 @@
 package com.rice.babchuk.domain.match.dto.response
 
 import com.rice.babchuk.domain.match.domain.enum.MatchStatus
-import com.rice.babchuk.domain.user.dto.response.UserResponse
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
 import java.time.LocalTime
 
-data class MatchResponse(
+data class MatchDetailResponse(
     @Schema(example = "0")
-    val id: Long,
+    val id: Long ,
 
     val title: String,
 
-    @Schema(example = "14")
     val matchDate: LocalDate,
 
     val matchTime: LocalTime,
 
+    @Schema(example = "14")
     val teamSize: Int,
 
+    @Schema(example = "30")
     val durationMinutes: Int,
 
-    val teamACaptain: UserResponse,
-
-    val teamBCaptain: UserResponse,
-
     val status: MatchStatus,
+
+    val teamA: TeamDetailResponse,
+
+    val teamB: TeamDetailResponse,
 )
