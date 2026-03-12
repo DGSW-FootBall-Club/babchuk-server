@@ -1,4 +1,4 @@
-package com.rice.babchuk.domain.auth.service.Impl
+package com.rice.babchuk.domain.auth.service.impl
 
 import com.rice.babchuk.domain.auth.dto.request.LoginRequest
 import com.rice.babchuk.domain.auth.dto.request.SignUpRequest

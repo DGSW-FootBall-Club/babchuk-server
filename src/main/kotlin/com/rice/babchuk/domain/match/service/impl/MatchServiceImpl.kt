@@ -1,4 +1,4 @@
-package com.rice.babchuk.domain.match.service.Impl
+package com.rice.babchuk.domain.match.service.impl
 
 import com.rice.babchuk.domain.match.domain.entity.MatchParticipant
 import com.rice.babchuk.domain.match.domain.enum.MatchStatus

@@ -1,4 +1,4 @@
-package com.rice.babchuk.domain.user.service.Impl
+package com.rice.babchuk.domain.user.service.impl
 
 import com.rice.babchuk.domain.user.dto.response.UserResponse
 import com.rice.babchuk.domain.user.error.UserError
