@@ -11,18 +11,18 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/user")
-@Tag(name = "유저 API", description = "유저 조회")
+@Tag(name = "유저 API")
 class UserController(
     private val userService: UserService
 ) {
     @GetMapping("/me")
-    @Operation(summary = "내정보 조회", description = "내정보를 조회합니다")
+    @Operation(summary = "내정보 조회")
     fun getMyInfo(@AuthenticationPrincipal username: String) = BaseResponse.of(
         userService.getMyInfo(username), message = "내 정보 조회 성공"
     )
 
     @GetMapping("/all")
-    @Operation(summary = "전체 유저 조회", description = "전체 유저를 조회합니다")
+    @Operation(summary = "전체 유저 조회")
     fun getAllUser() = BaseResponse.of(
         userService.getAllUser(), message = "전체 유저 조회 성공"
     )

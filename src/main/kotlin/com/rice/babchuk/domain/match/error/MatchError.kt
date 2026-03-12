@@ -10,4 +10,7 @@ enum class MatchError(override val status: HttpStatus, override val message: Str
     ALREADY_JOINED(HttpStatus.BAD_REQUEST, "이미 신청한 매치입니다"),
     TEAM_FULL(HttpStatus.BAD_REQUEST, "팀 인원이 꽉 찼습니다"),
     CAPTAIN_CANNOT_JOIN(HttpStatus.BAD_REQUEST, "주장은 팀 신청을 할 수 없습니다"),
+    NOT_JOINED(HttpStatus.BAD_REQUEST, "신청하지 않은 매치입니다"),
+    CANNOT_MODIFY(HttpStatus.BAD_REQUEST, "종료되거나 마감된 매치는 수정할 수 없습니다"),
+    NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "권한이 없습니다"),
 }

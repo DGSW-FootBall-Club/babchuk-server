@@ -1,20 +1,10 @@
 package com.rice.babchuk.domain.match.domain.entity
 
 import com.rice.babchuk.domain.match.domain.enum.MatchStatus
+import com.rice.babchuk.domain.match.dto.request.MatchRequest
 import com.rice.babchuk.domain.user.domain.entity.User
 import com.rice.babchuk.global.common.entity.BaseTimeEntity
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import jakarta.persistence.FetchType
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.OneToMany
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
@@ -26,29 +16,44 @@ class Match(
     val id: Long = 0,
 
     @Column(nullable = false, length = 100)
-    val title: String,
+    var title: String,
 
     @Column(nullable = false)
-    val matchAt: LocalDateTime,
+    var matchAt: LocalDateTime,
 
     @Column(nullable = false)
-    val teamSize: Int,
+    var teamSize: Int,
 
     @Column(nullable = false)
-    val durationMinutes: Int,
+    var durationMinutes: Int,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_a_captain_id")
-    val teamACaptain: User? = null,
+    var teamACaptain: User? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_b_captain_id")
-    val teamBCaptain: User? = null,
+    var teamBCaptain: User? = null,
 
     @OneToMany(mappedBy = "match", fetch = FetchType.LAZY)
     val participants: MutableList<MatchParticipant> = mutableListOf(),
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var status: MatchStatus = MatchStatus.OPEN
-) : BaseTimeEntity()
+    var status: MatchStatus = MatchStatus.OPEN,
+
+    ) : BaseTimeEntity() {
+
+    fun update(
+        request: MatchRequest,
+        teamACaptain: User,
+        teamBCaptain: User,
+    ) {
+        this.title = request.title
+        this.matchAt = LocalDateTime.of(request.matchDate, request.matchTime)
+        this.teamSize = request.teamSize
+        this.durationMinutes = request.durationMinutes
+        this.teamACaptain = teamACaptain
+        this.teamBCaptain = teamBCaptain
+    }
+}

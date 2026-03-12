@@ -2,7 +2,7 @@ package com.rice.babchuk.domain.match.mapper
 
 import com.rice.babchuk.domain.match.domain.entity.Match
 import com.rice.babchuk.domain.match.domain.enum.TeamType
-import com.rice.babchuk.domain.match.dto.request.CreateMatchRequest
+import com.rice.babchuk.domain.match.dto.request.MatchRequest
 import com.rice.babchuk.domain.match.dto.response.MatchDetailResponse
 import com.rice.babchuk.domain.match.dto.response.MatchResponse
 import com.rice.babchuk.domain.match.dto.response.TeamDetailResponse
@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 @Component
 object MatchMapper {
     fun toEntity(
-        request: CreateMatchRequest,
+        request: MatchRequest,
         teamACaptain: User,
         teamBCaptain: User
     ): Match {

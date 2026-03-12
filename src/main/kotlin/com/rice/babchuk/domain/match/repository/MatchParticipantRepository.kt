@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository
 interface MatchParticipantRepository : JpaRepository<MatchParticipant, Long> {
     fun existsByMatchIdAndUserId(matchId: Long, userId: Long): Boolean
     fun countByMatchIdAndTeamType(matchId: Long, teamType: TeamType): Long
+    fun findByMatchIdAndUserId(matchId: Long, userId: Long): MatchParticipant?
 }

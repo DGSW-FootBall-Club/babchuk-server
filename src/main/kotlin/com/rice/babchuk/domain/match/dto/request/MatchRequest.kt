@@ -5,7 +5,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 @Schema(description = "매치 생성 요청")
-data class CreateMatchRequest(
+data class MatchRequest(
     val title: String,
 
     @Schema(example = "2025-03-10")
