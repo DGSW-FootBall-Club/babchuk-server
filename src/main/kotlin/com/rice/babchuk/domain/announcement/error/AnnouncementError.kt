@@ -3,7 +3,7 @@ package com.rice.babchuk.domain.announcement.error
 import com.rice.babchuk.global.error.CustomError
 import org.springframework.http.HttpStatus
 
-enum class NoticeError(
+enum class AnnouncementError(
     override val status: HttpStatus,
     override val message: String
 ) : CustomError {
