@@ -7,34 +7,23 @@ import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpHeaders
 
 @Configuration
 class SwaggerConfig {
-
     @Bean
-    fun openAPI(): OpenAPI {
-
-        val info = Info()
-            .title("Babchuk Server API")
-            .description("Babchuk API Documentation")
-            .version("1.0.0")
-
-        val securityScheme = SecurityScheme()
-            .name("Authorization")
-            .type(SecurityScheme.Type.HTTP)
-            .scheme("bearer")
-            .bearerFormat("JWT")
-            .description("JWT 토큰을 입력하세요. 예: Bearer {token}")
-
-        val components = Components()
-            .addSecuritySchemes("bearer-jwt", securityScheme)
-
-        val securityRequirement = SecurityRequirement()
-            .addList("bearer-jwt")
-
-        return OpenAPI()
-            .info(info)
-            .components(components)
-            .addSecurityItem(securityRequirement)
-    }
+    fun openAPI(): OpenAPI =
+        OpenAPI()
+            .info(Info().title("Babchuk Server API").description("Babchuk API Documentation").version("1.0.0"))
+            .addSecurityItem(SecurityRequirement().addList("Authorization"))
+            .components(
+                Components().addSecuritySchemes(
+                    "Authorization", SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")
+                        .`in`(SecurityScheme.In.HEADER)
+                        .name(HttpHeaders.AUTHORIZATION)
+                )
+            )
 }
