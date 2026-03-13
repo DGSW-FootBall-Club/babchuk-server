@@ -32,7 +32,7 @@ class AuthServiceImpl(
         val accessToken = jwtProvider.generateAccessToken(user.id)
         val refreshToken = jwtProvider.generateRefreshToken(user.id)
 
-        refreshTokenRepository.save(user.username, refreshToken, 604800000)
+        refreshTokenRepository.save(user.id, refreshToken, 604800000)
 
         return JwtResponse(
             accessToken = accessToken,
@@ -64,19 +64,16 @@ class AuthServiceImpl(
             throw CustomException(AuthError.INVALID_REFRESH_TOKEN)
         }
 
-        val username = jwtProvider.getUserNameFromToken(refreshToken)
+        val userId = jwtProvider.getUserIdFromToken(refreshToken)
 
         val savedRefreshToken =
-            refreshTokenRepository.get(username) ?: throw CustomException(AuthError.INVALID_REFRESH_TOKEN)
+            refreshTokenRepository.get(userId) ?: throw CustomException(AuthError.INVALID_REFRESH_TOKEN)
 
         if (savedRefreshToken != refreshToken) {
             throw CustomException(AuthError.INVALID_REFRESH_TOKEN)
         }
 
-        val user = userRepository.findByUsername(username)
-            ?: throw CustomException(AuthError.USER_NOT_FOUND)
-
-        val newAccessToken = jwtProvider.generateAccessToken(user.id)
+        val newAccessToken = jwtProvider.generateAccessToken(userId)
 
         return JwtResponse(
             accessToken = newAccessToken,

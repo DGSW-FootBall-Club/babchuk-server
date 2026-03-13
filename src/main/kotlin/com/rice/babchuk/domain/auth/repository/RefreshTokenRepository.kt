@@ -8,17 +8,16 @@ import java.util.concurrent.TimeUnit
 class RefreshTokenRepository(
     private val redisTemplate: StringRedisTemplate
 ) {
-
-    fun save(userName: String, refreshToken: String, expiration: Long) {
+    fun save(userId: Long, refreshToken: String, expiration: Long) {
         redisTemplate.opsForValue()
-            .set("refresh:$userName", refreshToken, expiration, TimeUnit.MILLISECONDS)
+            .set("refresh:$userId", refreshToken, expiration, TimeUnit.MILLISECONDS)
     }
 
-    fun get(userName: String): String? {
-        return redisTemplate.opsForValue().get("refresh:$userName")
+    fun get(userId: Long): String? {
+        return redisTemplate.opsForValue().get("refresh:$userId")
     }
 
-    fun delete(userName: String) {
-        redisTemplate.delete("refresh:$userName")
+    fun delete(userId: Long) {
+        redisTemplate.delete("refresh:$userId")
     }
 }

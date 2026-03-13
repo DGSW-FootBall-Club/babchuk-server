@@ -42,9 +42,13 @@ class Match(
     @Column(nullable = false)
     var status: MatchStatus = MatchStatus.OPEN,
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id", nullable = false)
+    val author: User
+
     ) : BaseTimeEntity() {
 
-    fun update(
+    fun updateMatch(
         request: MatchRequest,
         teamACaptain: User,
         teamBCaptain: User,

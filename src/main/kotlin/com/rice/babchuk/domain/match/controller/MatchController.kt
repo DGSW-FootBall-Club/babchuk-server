@@ -41,9 +41,8 @@ class MatchController(
     @Operation(summary = "매치 신청")
     fun joinMatch(
         @PathVariable matchId: Long,
-        @AuthenticationPrincipal userId: String,
         @RequestBody @Valid request: JoinMatchRequest
-    ) = matchService.joinMatch(matchId, userId.toLong(), request)
+    ) = matchService.joinMatch(matchId, request)
         .let { BaseResponse.success(message = "매치 신청 성공") }
 
 
@@ -60,34 +59,30 @@ class MatchController(
     @Operation(summary = "매치 신청 취소")
     fun cancelMatch(
         @PathVariable matchId: Long,
-        @AuthenticationPrincipal userId: String,
-    ) = matchService.cancelMatch(matchId, userId.toLong())
+    ) = matchService.cancelMatch(matchId)
         .let { BaseResponse.success(message = "매치 신청 취소 성공") }
 
     @PatchMapping("/{matchId}")
     @Operation(summary = "매치 수정")
     fun updateMatch(
         @PathVariable matchId: Long,
-        @AuthenticationPrincipal userId: String,
         @RequestBody @Valid request: MatchRequest
-    ) = matchService.updateMatch(matchId, userId.toLong(), request)
+    ) = matchService.updateMatch(matchId, request)
         .let { BaseResponse.success(message = "매치 수정 성공") }
 
     @DeleteMapping("/{matchId}")
     @Operation(summary = "매치 삭제")
     fun deleteMatch(
         @PathVariable matchId: Long,
-        @AuthenticationPrincipal userId: String,
-    ) = matchService.deleteMatch(matchId, userId.toLong())
+    ) = matchService.deleteMatch(matchId)
         .let { BaseResponse.success(message = "매치 삭제 성공") }
 
     @GetMapping("/{matchId}/joined")
     @Operation(summary = "매치 신청 여부 조회")
     fun isJoined(
         @PathVariable matchId: Long,
-        @AuthenticationPrincipal userId: String,
     ) = BaseResponse.of(
-        matchService.isJoined(matchId, userId.toLong()),
+        matchService.isJoined(matchId),
         message = "매치 신청 여부 조회 성공"
     )
 }

@@ -64,7 +64,7 @@ class JwtProvider(
      * Authentication 생성
      */
     fun getAuthentication(token: String): UsernamePasswordAuthenticationToken {
-        val username = getUserNameFromToken(token)
+        val username = getUserIdFromToken(token)
 
         return UsernamePasswordAuthenticationToken(
             username,
@@ -76,8 +76,8 @@ class JwtProvider(
     /**
      * userName 추출
      */
-    fun getUserNameFromToken(token: String): String =
-        parser.parseSignedClaims(token).payload.subject
+    fun getUserIdFromToken(token: String): Long =
+        parser.parseSignedClaims(token).payload.subject.toLong()
 
     /**
      * Token 검증

@@ -10,5 +10,4 @@ interface AnnouncementService {
     fun getAnnouncement(): List<AnnouncementResponse>
     fun updateAnnouncement(announcementId: Long, request: AnnouncementRequest)
     fun deleteAnnouncement(id: Long)
-
 }

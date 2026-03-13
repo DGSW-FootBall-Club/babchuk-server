@@ -8,10 +8,10 @@ import com.rice.babchuk.domain.match.dto.response.MatchResponse
 interface MatchService {
     fun createMatch(request: MatchRequest)
     fun getMatches(): List<MatchResponse>
-    fun joinMatch(matchId: Long, userId: Long, request: JoinMatchRequest)
+    fun joinMatch(matchId: Long, request: JoinMatchRequest)
     fun getMatchDetail(matchId: Long): MatchDetailResponse
-    fun cancelMatch(matchId: Long, userId: Long)
-    fun updateMatch(matchId: Long, userId: Long, request: MatchRequest)
-    fun deleteMatch(matchId: Long, userId: Long)
-    fun isJoined(matchId: Long, userId: Long): Boolean
+    fun cancelMatch(matchId: Long)
+    fun updateMatch(matchId: Long, request: MatchRequest)
+    fun deleteMatch(matchId: Long)
+    fun isJoined(matchId: Long): Boolean
 }

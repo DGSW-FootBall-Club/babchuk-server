@@ -16,7 +16,8 @@ object MatchMapper {
     fun toEntity(
         request: MatchRequest,
         teamACaptain: User,
-        teamBCaptain: User
+        teamBCaptain: User,
+        author: User
     ): Match {
         return Match(
             title = request.title,
@@ -24,7 +25,8 @@ object MatchMapper {
             teamSize = request.teamSize,
             durationMinutes = request.durationMinutes,
             teamACaptain = teamACaptain,
-            teamBCaptain = teamBCaptain
+            teamBCaptain = teamBCaptain,
+            author = author
         )
     }
 

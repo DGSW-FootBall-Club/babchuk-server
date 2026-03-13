@@ -13,4 +13,5 @@ enum class MatchError(override val status: HttpStatus, override val message: Str
     NOT_JOINED(HttpStatus.BAD_REQUEST, "신청하지 않은 매치입니다"),
     CANNOT_MODIFY(HttpStatus.BAD_REQUEST, "종료되거나 마감된 매치는 수정할 수 없습니다"),
     NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "권한이 없습니다"),
+    MATCH_NOT_OPEN(HttpStatus.BAD_REQUEST, "모집이 종료된 매치는 신청할 수 없습니다"),
 }

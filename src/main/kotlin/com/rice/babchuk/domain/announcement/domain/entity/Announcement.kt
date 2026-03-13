@@ -1,6 +1,7 @@
 package com.rice.babchuk.domain.announcement.domain.entity
 
 import com.rice.babchuk.domain.announcement.dto.request.AnnouncementRequest
+import com.rice.babchuk.domain.user.domain.entity.User
 import com.rice.babchuk.global.common.entity.BaseTimeEntity
 import jakarta.persistence.*
 
@@ -18,10 +19,13 @@ class Announcement(
     var content: String,
 
     @Column(nullable = false)
-    var image: String
+    var image: String,
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id", nullable = false)
+    val author: User
 
-): BaseTimeEntity() {
+) : BaseTimeEntity() {
     fun updateAnnouncement(
         request: AnnouncementRequest
     ) {

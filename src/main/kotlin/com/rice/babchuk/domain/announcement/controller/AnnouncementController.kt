@@ -5,6 +5,7 @@ import com.rice.babchuk.domain.announcement.service.AnnouncementService
 import com.rice.babchuk.global.common.dto.BaseResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -39,7 +40,7 @@ class AnnouncementController(
     @DeleteMapping("/{announcementId}")
     @Operation(summary = "공지 삭제")
     fun deleteAnnouncement(
-        @PathVariable announcementId: Long
+        @PathVariable announcementId: Long,
     ) = announcementService.deleteAnnouncement(announcementId)
         .let { BaseResponse.success(message = "공지 삭제 성공") }
 
@@ -48,6 +49,9 @@ class AnnouncementController(
     fun updateAnnouncement(
         @PathVariable announcementId: Long,
         @RequestBody request: AnnouncementRequest
-    ) = announcementService.updateAnnouncement(announcementId, request)
+    ) = announcementService.updateAnnouncement(
+        announcementId,
+        request
+    )
         .let { BaseResponse.success(message = "공지 수정 성공") }
 }

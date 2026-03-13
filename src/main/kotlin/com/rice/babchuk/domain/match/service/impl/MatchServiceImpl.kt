@@ -14,6 +14,7 @@ import com.rice.babchuk.domain.match.repository.MatchRepository
 import com.rice.babchuk.domain.match.service.MatchService
 import com.rice.babchuk.domain.user.repository.UserRepository
 import com.rice.babchuk.global.error.CustomException
+import com.rice.babchuk.global.security.holder.SecurityHolder
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
@@ -23,9 +24,10 @@ class MatchServiceImpl(
     private val matchRepository: MatchRepository,
     private val userRepository: UserRepository,
     private val matchParticipantRepository: MatchParticipantRepository,
+    private val securityHolder: SecurityHolder
 ) : MatchService {
-    override fun createMatch(request: MatchRequest) {
 
+    override fun createMatch(request: MatchRequest) {
         if (request.teamACaptainId == request.teamBCaptainId) {
             throw CustomException(MatchError.SAME_CAPTAIN)
         }
@@ -37,7 +39,12 @@ class MatchServiceImpl(
             .orElseThrow { CustomException(MatchError.CAPTAIN_NOT_FOUND) }
 
         matchRepository.save(
-            MatchMapper.toEntity(request, teamACaptain, teamBCaptain)
+            MatchMapper.toEntity(
+                request,
+                teamACaptain,
+                teamBCaptain,
+                securityHolder.user
+            )
         )
     }
 
@@ -46,19 +53,21 @@ class MatchServiceImpl(
             .map { MatchMapper.toResponse(it) }
     }
 
-    override fun joinMatch(matchId: Long, userId: Long, request: JoinMatchRequest) {
+    override fun joinMatch(matchId: Long, request: JoinMatchRequest) {
+        val currentUser = securityHolder.user
 
         val match = matchRepository.findById(matchId)
             .orElseThrow { CustomException(MatchError.MATCH_NOT_FOUND) }
 
-        val user = userRepository.findById(userId)
-            .orElseThrow { CustomException(MatchError.CAPTAIN_NOT_FOUND) }
+        if (match.status == MatchStatus.CLOSED || match.status == MatchStatus.FINISHED) {
+            throw CustomException(MatchError.MATCH_NOT_OPEN)
+        }
 
-        if (match.teamACaptain?.id == userId || match.teamBCaptain?.id == userId) {
+        if (match.teamACaptain?.id == currentUser.id || match.teamBCaptain?.id == currentUser.id) {
             throw CustomException(MatchError.CAPTAIN_CANNOT_JOIN)
         }
 
-        if (matchParticipantRepository.existsByMatchIdAndUserId(matchId, userId)) {
+        if (matchParticipantRepository.existsByMatchIdAndUserId(matchId, currentUser.id)) {
             throw CustomException(MatchError.ALREADY_JOINED)
         }
 
@@ -67,7 +76,11 @@ class MatchServiceImpl(
         }
 
         matchParticipantRepository.save(
-            MatchParticipant(match = match, user = user, teamType = request.teamType)
+            MatchParticipant(
+                match = match,
+                user = currentUser,
+                teamType = request.teamType
+            )
         )
 
         val teamACount = matchParticipantRepository.countByMatchIdAndTeamType(matchId, TeamType.TEAM_A)
@@ -75,7 +88,6 @@ class MatchServiceImpl(
 
         if (teamACount >= match.teamSize && teamBCount >= match.teamSize) {
             match.status = MatchStatus.CLOSED
-            matchRepository.save(match)
         }
     }
 
@@ -86,18 +98,22 @@ class MatchServiceImpl(
         return MatchMapper.toDetailResponse(match)
     }
 
-    override fun cancelMatch(matchId: Long, userId: Long) {
-        val participant = matchParticipantRepository.findByMatchIdAndUserId(matchId, userId)
+    override fun cancelMatch(matchId: Long) {
+        val currentUser = securityHolder.user
+
+        val participant = matchParticipantRepository.findByMatchIdAndUserId(matchId, currentUser.id)
             ?: throw CustomException(MatchError.NOT_JOINED)
 
         matchParticipantRepository.delete(participant)
     }
 
-    override fun updateMatch(matchId: Long, userId: Long, request: MatchRequest) {
+    override fun updateMatch(matchId: Long, request: MatchRequest) {
+        val currentUser = securityHolder.user
+
         val match = matchRepository.findById(matchId)
             .orElseThrow { CustomException(MatchError.MATCH_NOT_FOUND) }
 
-        if (match.teamACaptain?.id != userId && match.teamBCaptain?.id != userId) {
+        if (match.author != currentUser) {
             throw CustomException(MatchError.NOT_AUTHORIZED)
         }
 
@@ -115,21 +131,24 @@ class MatchServiceImpl(
         val teamBCaptain = userRepository.findById(request.teamBCaptainId)
             .orElseThrow { CustomException(MatchError.CAPTAIN_NOT_FOUND) }
 
-        match.update(request, teamACaptain, teamBCaptain)
+        match.updateMatch(request, teamACaptain, teamBCaptain)
     }
 
-    override fun deleteMatch(matchId: Long, userId: Long) {
+    override fun deleteMatch(matchId: Long) {
+        val currentUser = securityHolder.user
+
         val match = matchRepository.findById(matchId)
             .orElseThrow { CustomException(MatchError.MATCH_NOT_FOUND) }
 
-        if (match.teamACaptain?.id != userId && match.teamBCaptain?.id != userId) {
+        if (match.author != currentUser) {
             throw CustomException(MatchError.NOT_AUTHORIZED)
         }
 
         matchRepository.delete(match)
     }
 
-    override fun isJoined(matchId: Long, userId: Long): Boolean {
-        return matchParticipantRepository.existsByMatchIdAndUserId(matchId, userId)
+    override fun isJoined(matchId: Long): Boolean {
+        val currentUser = securityHolder.user
+        return matchParticipantRepository.existsByMatchIdAndUserId(matchId, currentUser.id)
     }
 }
