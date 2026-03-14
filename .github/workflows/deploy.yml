@@ -45,13 +45,15 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-              cd ~/babchuk-server
-              # 1. 서버에 있는 이미지를 강제로 지워버립니다 (이러면 무조건 새로 받아야 함)
-              sudo docker compose down
-              sudo docker rmi -f ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
+            cd ~/babchuk-server
+              # 1. 기존 컨테이너를 내립니다 (하이픈 사용)
+              sudo docker-compose down
               
-              # 2. 최신 이미지를 다시 다운로드
-              sudo docker compose pull
+              # 2. 이미지를 먼저 받고 (이미지가 없어도 에러 안 남)
+              sudo docker-compose pull
               
-              # 3. 컨테이너 실행
-              sudo docker compose up
+              # 3. 컨테이너를 백그라운드에서 실행하고, 강제로 재생성합니다
+              sudo docker-compose up -d --force-recreate
+              
+              # 4. 안 쓰는 이미지는 실행 완료 후에 정리합니다 (에러 나도 무시하게 || true 추가)
+              sudo docker image prune -f || true
