@@ -14,7 +14,7 @@ class SwaggerConfig {
     @Bean
     fun openAPI(): OpenAPI =
         OpenAPI()
-            .info(Info().title("Babchuk Server API").description("Babchuk API Documentation").version("1.0.0"))
+            .info(Info().title("밥축 서버 API").description("Babchuk API Documentation").version("1.0.0"))
             .addSecurityItem(SecurityRequirement().addList("Authorization"))
             .components(
                 Components().addSecuritySchemes(
