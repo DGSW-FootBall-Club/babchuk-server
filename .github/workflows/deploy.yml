@@ -44,7 +44,7 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }} .
           docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
 
-      # 6. EC2 배포
+      # 6. EC2 배포 (이 부분을 교체하세요)
       - name: Deploy on EC2
         uses: appleboy/ssh-action@master
         with:
@@ -55,14 +55,15 @@ jobs:
           script: |
             cd ~/babchuk-server
 
-            # 기존 컨테이너 종료
-            sudo docker compose down || true
+            # 1. 최신 이미지 강제 다운로드
+            # 서버 환경에 따라 docker-compose 또는 docker compose 선택
+            sudo docker-compose pull || sudo docker compose pull
 
-            # 최신 이미지 pull
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
+            # 2. 컨테이너 재시작 (중요 옵션들 추가)
+            # --force-recreate: 이미지가 같아도 컨테이너를 무조건 새로 만듦
+            # --remove-orphans: 설정에서 빠진 옛날 컨테이너는 삭제
+            sudo docker-compose up -d --force-recreate --remove-orphans || \
+            sudo docker compose up -d --force-recreate --remove-orphans
 
-            # 컨테이너 실행
-            sudo docker compose up -d
-
-            # 사용 안하는 이미지 정리
+            # 3. 사용 안 하는 이미지(예전 버전) 정리
             sudo docker image prune -f

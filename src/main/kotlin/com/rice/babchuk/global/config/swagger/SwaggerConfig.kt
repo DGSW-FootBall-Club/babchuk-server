@@ -14,7 +14,7 @@ class SwaggerConfig {
     @Bean
     fun openAPI(): OpenAPI =
         OpenAPI()
-            .info(Info().title("밥축 서버 API").description("밥축 API Documentation").version("1.0.0"))
+            .info(Info().title("밥축 서버 API").description("밥축(밥먹고 축구할 사람?) API Documentation").version("1.0.0"))
             .addSecurityItem(SecurityRequirement().addList("Authorization"))
             .components(
                 Components().addSecuritySchemes(
