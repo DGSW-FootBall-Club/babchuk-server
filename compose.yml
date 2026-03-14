@@ -19,7 +19,7 @@ services:
       - mysql_data:/var/lib/mysql
 
   server:
-    build: .
+    image: ${DOCKER_USERNAME}/${DOCKER_REPOSITORY}:latest
     container_name: babchuk-server
     depends_on:
       - mysql
