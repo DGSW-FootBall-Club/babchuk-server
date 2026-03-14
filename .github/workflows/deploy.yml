@@ -54,4 +54,4 @@ jobs:
               sudo docker compose pull
               
               # 3. 컨테이너 실행
-              sudo docker compose up -d
+              sudo docker compose up
