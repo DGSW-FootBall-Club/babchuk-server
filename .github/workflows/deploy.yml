@@ -53,7 +53,6 @@ jobs:
               sudo docker-compose pull
               
               # 3. 컨테이너를 백그라운드에서 실행하고, 강제로 재생성합니다
-#              sudo docker-compose up -d --force-recreate
               sudo docker compose up -d
               
               # 4. 안 쓰는 이미지는 실행 완료 후에 정리합니다 (에러 나도 무시하게 || true 추가)
