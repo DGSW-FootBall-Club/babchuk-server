@@ -47,7 +47,7 @@ class AuthServiceImpl(
 
         val encodedPassword = passwordEncoder.encode(request.password)
         val user = User(
-            profileImage = request.profileImage ?: "https://www.fotmob.com/img/player-fallback-dark.png",
+            profileImage = request.profileImage ?: "https://www.fotmob.com/img/player-fallback-light.png",
             username = request.username,
             password = encodedPassword,
             nickname = request.nickname,
