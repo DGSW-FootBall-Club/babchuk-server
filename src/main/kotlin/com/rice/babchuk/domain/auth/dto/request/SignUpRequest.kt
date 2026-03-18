@@ -9,9 +9,8 @@ import jakarta.validation.constraints.NotNull
 @Schema(description = "회원가입 요청")
 data class SignUpRequest(
 
-    @field:NotBlank
     @Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg")
-    val profileImage: String,
+    val profileImage: String?,
 
     @field:NotBlank
     @Schema(description = "사용자 ID", example = "testuser")
