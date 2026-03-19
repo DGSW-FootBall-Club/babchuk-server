@@ -51,7 +51,8 @@ class SecurityConfig(
         val config = CorsConfiguration()
         config.allowedOrigins = listOf(
             "http://localhost:3000",
-            "https://babchuk-web.vercel.app"
+            "https://babchuk-web.vercel.app",
+            "https://babchuk-7oyat3lna-eunchans-projects.vercel.app"
         )
         config.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
         config.allowedHeaders = listOf("*")
