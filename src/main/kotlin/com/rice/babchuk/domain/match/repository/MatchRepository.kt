@@ -31,5 +31,5 @@ interface MatchRepository : JpaRepository<Match, Long> {
         WHERE m.status != 'FINISHED'
         AND m.matchAt < :now
     """)
-    fun findAllNotFinishedAndMatchAtBefore(now: LocalDateTime): List<Match>
+    fun findAllNotFinished(now: LocalDateTime): List<Match>
 }

@@ -20,18 +20,17 @@ class MatchScheduler(
         val now = LocalDateTime.now()
         log.info("스케줄러 실행: $now")
 
-        val targets = matchRepository.findAllNotFinishedAndMatchAtBefore(now)
+        val targets = matchRepository.findAllNotFinished(now).filter { match ->
+            now.isAfter(match.matchAt.plusMinutes(match.durationMinutes.toLong()))
+        }
 
         log.info("종료 처리할 매치 수: ${targets.size}")
 
-        targets.forEach { match ->
-            val endTime = match.matchAt.plusMinutes(match.durationMinutes.toLong())
+        if (targets.isEmpty()) return
 
-            if (now.isAfter(endTime)) {
-                match.status = MatchStatus.FINISHED
-                matchRepository.save(match)
-                log.info("매치 종료 처리: matchId=${match.id}")
-            }
-        }
+        targets.forEach { it.status = MatchStatus.FINISHED }
+        matchRepository.saveAll(targets)
+
+        log.info("매치 종료 처리 완료: ${targets.size}건")
     }
 }

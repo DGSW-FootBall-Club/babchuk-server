@@ -10,6 +10,7 @@ import com.rice.babchuk.domain.user.repository.UserRepository
 import com.rice.babchuk.global.error.CustomException
 import com.rice.babchuk.global.jwt.provider.JwtProvider
 import com.rice.babchuk.global.jwt.dto.response.JwtResponse
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
@@ -45,18 +46,24 @@ class AuthServiceImpl(
             throw CustomException(AuthError.USER_ALREADY_EXISTS)
         }
 
-        val encodedPassword = passwordEncoder.encode(request.password)
-        val user = User(
-            profileImage = request.profileImage ?: "https://www.fotmob.com/img/player-fallback-light.png",
-            username = request.username,
-            password = encodedPassword,
-            nickname = request.nickname,
-            grade = request.grade,
-            skillType = request.skillType,
-            gender = request.gender
-        )
+        try {
+            val encodedPassword = passwordEncoder.encode(request.password)
 
-        userRepository.save(user)
+            val user = User(
+                profileImage = request.profileImage ?: "https://www.fotmob.com/img/player-fallback-light.png",
+                username = request.username,
+                password = encodedPassword,
+                nickname = request.nickname,
+                grade = request.grade,
+                skillType = request.skillType,
+                gender = request.gender
+            )
+
+            userRepository.save(user)
+
+        } catch (e: DataIntegrityViolationException) {
+            throw CustomException(AuthError.USER_ALREADY_EXISTS)
+        }
     }
 
     override fun reissue(refreshToken: String): JwtResponse {
