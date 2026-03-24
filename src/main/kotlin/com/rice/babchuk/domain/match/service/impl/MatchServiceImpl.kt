@@ -71,7 +71,9 @@ class MatchServiceImpl(
             throw CustomException(MatchError.ALREADY_JOINED)
         }
 
-        if (matchParticipantRepository.countByMatchIdAndTeamType(matchId, request.teamType) >= match.teamSize) {
+        val perTeam = (match.teamSize / 2) - 1
+
+        if (matchParticipantRepository.countByMatchIdAndTeamType(matchId, request.teamType) >= perTeam) {
             throw CustomException(MatchError.TEAM_FULL)
         }
 
@@ -86,7 +88,7 @@ class MatchServiceImpl(
         val teamACount = matchParticipantRepository.countByMatchIdAndTeamType(matchId, TeamType.TEAM_A)
         val teamBCount = matchParticipantRepository.countByMatchIdAndTeamType(matchId, TeamType.TEAM_B)
 
-        if (teamACount >= match.teamSize && teamBCount >= match.teamSize) {
+        if (teamACount >= perTeam && teamBCount >= perTeam) {
             match.status = MatchStatus.CLOSED
         }
     }
@@ -105,6 +107,11 @@ class MatchServiceImpl(
             ?: throw CustomException(MatchError.NOT_JOINED)
 
         matchParticipantRepository.delete(participant)
+
+        val match = participant.match
+        if (match.status == MatchStatus.CLOSED) {
+            match.status = MatchStatus.OPEN
+        }
     }
 
     override fun updateMatch(matchId: Long, request: MatchRequest) {
@@ -151,4 +158,4 @@ class MatchServiceImpl(
         val currentUser = securityHolder.user
         return matchParticipantRepository.existsByMatchIdAndUserId(matchId, currentUser.id)
     }
-}
+}ㄴ
