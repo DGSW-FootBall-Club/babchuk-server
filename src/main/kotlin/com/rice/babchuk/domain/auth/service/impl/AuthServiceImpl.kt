@@ -46,6 +46,10 @@ class AuthServiceImpl(
             throw CustomException(AuthError.USER_ALREADY_EXISTS)
         }
 
+        if (userRepository.existsByGrade(request.grade)) {
+            throw CustomException(AuthError.GRADE_ALREADY_EXISTS)
+        }
+
         try {
             val encodedPassword = passwordEncoder.encode(request.password)
 
