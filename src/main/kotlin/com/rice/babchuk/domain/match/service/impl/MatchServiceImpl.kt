@@ -158,4 +158,4 @@ class MatchServiceImpl(
         val currentUser = securityHolder.user
         return matchParticipantRepository.existsByMatchIdAndUserId(matchId, currentUser.id)
     }
-}ㄴ
+}
