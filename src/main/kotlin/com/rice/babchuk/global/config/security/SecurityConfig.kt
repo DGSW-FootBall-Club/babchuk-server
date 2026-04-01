@@ -54,7 +54,7 @@ class SecurityConfig(
             "https://babchuk-web.vercel.app",
             "https://babchuk-7oyat3lna-eunchans-projects.vercel.app"
         )
-        config.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        config.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
         config.allowedHeaders = listOf("*")
         config.allowCredentials = true
 
