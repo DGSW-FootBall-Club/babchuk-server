@@ -8,9 +8,11 @@ import com.rice.babchuk.domain.announcement.repository.AnnouncementRepository
 import com.rice.babchuk.domain.announcement.service.AnnouncementService
 import com.rice.babchuk.global.error.CustomException
 import com.rice.babchuk.global.security.holder.SecurityHolder
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.stereotype.Service
 
 @Service
+@Transactional(readOnly = true)
 class AnnouncementServiceImpl(
     private val announcementRepository: AnnouncementRepository,
     private val announcementMapper: AnnouncementMapper,
