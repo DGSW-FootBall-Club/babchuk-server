@@ -18,7 +18,7 @@ class Announcement(
     @Column(nullable = false, length = 100)
     var content: String,
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     var image: String,
 
     @ManyToOne(fetch = FetchType.LAZY)

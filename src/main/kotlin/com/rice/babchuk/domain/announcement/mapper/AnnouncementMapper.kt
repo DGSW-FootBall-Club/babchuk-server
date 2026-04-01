@@ -21,14 +21,14 @@ object AnnouncementMapper {
         )
     }
 
-    fun toResponse(
-        announcement: Announcement
-    ): AnnouncementResponse {
+    fun toResponse(announcement: Announcement): AnnouncementResponse {
         return AnnouncementResponse(
             id = announcement.id,
             title = announcement.title,
             content = announcement.content,
-            image = announcement.image
+            image = announcement.image,
+            author = announcement.author.nickname,
+            createdAt = announcement.createdAt
         )
     }
 }
