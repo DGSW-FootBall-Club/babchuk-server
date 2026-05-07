@@ -18,9 +18,6 @@ class JwtProvider(
 
     @Value("\${jwt.expiration.access}")
     private val accessTokenExpiration: Long,
-
-    @Value("\${jwt.expiration.refresh}")
-    private val refreshTokenExpiration: Long
 ) {
 
     private val key: SecretKey = Keys.hmacShaKeyFor(secretKey.toByteArray())
@@ -29,59 +26,35 @@ class JwtProvider(
         Jwts.parser().verifyWith(key).build()
     }
 
-    /**
-     * Access Token 생성
-     */
-    fun generateAccessToken(userId: Long) =
-        generateToken(userId, accessTokenExpiration)
-
-    /**
-     * Refresh Token 생성
-     */
-    fun generateRefreshToken(userId: Long) =
-        generateToken(userId, refreshTokenExpiration)
-
-    private fun generateToken(userId: Long, expiration: Long): String {
+    fun generateAccessToken(userId: Long): String {
         val now = Date()
 
         return Jwts.builder()
             .subject(userId.toString())
             .issuedAt(now)
-            .expiration(Date(now.time + expiration))
+            .expiration(Date(now.time + accessTokenExpiration))
             .signWith(key)
             .compact()
     }
 
-    /**
-     * Authorization Header에서 Token 추출
-     */
     fun extractToken(request: HttpServletRequest): String? =
         request.getHeader("Authorization")
             ?.takeIf { it.startsWith("Bearer ") }
             ?.substring(7)
 
-    /**
-     * Authentication 생성
-     */
     fun getAuthentication(token: String): UsernamePasswordAuthenticationToken {
-        val username = getUserIdFromToken(token)
+        val userId = getUserIdFromToken(token)
 
         return UsernamePasswordAuthenticationToken(
-            username,
+            userId,
             null,
             listOf(SimpleGrantedAuthority("ROLE_USER"))
         )
     }
 
-    /**
-     * userName 추출
-     */
     fun getUserIdFromToken(token: String): Long =
         parser.parseSignedClaims(token).payload.subject.toLong()
 
-    /**
-     * Token 검증
-     */
     fun validateToken(token: String): Boolean =
         runCatching { parser.parseSignedClaims(token) }.isSuccess
 }

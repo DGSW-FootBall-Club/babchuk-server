@@ -10,11 +10,15 @@ object UserMapper {
     fun toUserResponse(user: User): UserResponse {
         return UserResponse(
             id = user.id,
+            studentId = user.studentId,
+            name = user.name,
             profileImage = user.profileImage,
-            nickname = user.nickname,
+            role = user.role,
             grade = user.grade,
+            room = user.room,
+            number = user.number,
             skillType = user.skillType,
-            gender = user.gender
+            gender = user.gender,
         )
     }
 }

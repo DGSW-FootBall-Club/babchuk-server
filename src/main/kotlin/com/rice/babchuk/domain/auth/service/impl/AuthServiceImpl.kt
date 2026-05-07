@@ -1,94 +1,71 @@
 package com.rice.babchuk.domain.auth.service.impl
 
-import com.rice.babchuk.domain.auth.dto.request.LoginRequest
-import com.rice.babchuk.domain.auth.dto.request.SignUpRequest
+import com.rice.babchuk.domain.auth.client.DauthClient
+import com.rice.babchuk.domain.auth.dto.DauthUser
+import com.rice.babchuk.domain.auth.dto.response.DauthLoginResponse
 import com.rice.babchuk.domain.auth.error.AuthError
-import com.rice.babchuk.domain.auth.repository.RefreshTokenRepository
 import com.rice.babchuk.domain.auth.service.AuthService
 import com.rice.babchuk.domain.user.domain.entity.User
 import com.rice.babchuk.domain.user.repository.UserRepository
 import com.rice.babchuk.global.error.CustomException
 import com.rice.babchuk.global.jwt.provider.JwtProvider
-import com.rice.babchuk.global.jwt.dto.response.JwtResponse
-import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.security.crypto.password.PasswordEncoder
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
 class AuthServiceImpl(
+    private val dauthClient: DauthClient,
     private val userRepository: UserRepository,
     private val jwtProvider: JwtProvider,
-    private val passwordEncoder: PasswordEncoder,
-    private val refreshTokenRepository: RefreshTokenRepository
 ) : AuthService {
 
-    override fun login(request: LoginRequest): JwtResponse {
-        val user = userRepository.findByUsername(request.username)
-            ?: throw CustomException(AuthError.USER_NOT_FOUND)
+    @Transactional
+    override fun loginWithDauth(accessToken: String): DauthLoginResponse {
+        val profile = dauthClient.fetchUser(accessToken)
 
-        if (!passwordEncoder.matches(request.password, user.password)) {
-            throw CustomException(AuthError.INVALID_PASSWORD)
+        if (!profile.roles.contains("STUDENT") || profile.student == null) {
+            throw CustomException(AuthError.NOT_STUDENT_ACCOUNT)
         }
 
-        val accessToken = jwtProvider.generateAccessToken(user.id)
-        val refreshToken = jwtProvider.generateRefreshToken(user.id)
-
-        refreshTokenRepository.save(user.id, refreshToken, 604800000)
-
-        return JwtResponse(
-            accessToken = accessToken,
-            refreshToken = refreshToken
+        val studentId = buildStudentId(
+            grade = profile.student.grade,
+            room = profile.student.room,
+            number = profile.student.number,
         )
+
+        val user = upsertUser(profile, studentId)
+
+        val token = jwtProvider.generateAccessToken(user.id)
+        return DauthLoginResponse(accessToken = token)
     }
 
-    override fun signup(request: SignUpRequest) {
-        if (userRepository.existsByUsername(request.username)) {
-            throw CustomException(AuthError.USER_ALREADY_EXISTS)
+    private fun upsertUser(profile: DauthUser, studentId: String): User {
+        val existing = userRepository.findByPublicId(profile.publicId)
+            ?: userRepository.findByStudentId(studentId)
+
+        if (existing != null) {
+            existing.applyDauthProfile(profile, studentId)
+            return existing
         }
 
-        if (userRepository.existsByGrade(request.grade)) {
-            throw CustomException(AuthError.GRADE_ALREADY_EXISTS)
-        }
-
-        try {
-            val encodedPassword = passwordEncoder.encode(request.password)
-
-            val user = User(
-                profileImage = request.profileImage ?: "https://www.fotmob.com/img/player-fallback-dark.png",
-                username = request.username,
-                password = encodedPassword,
-                nickname = request.nickname,
-                grade = request.grade,
-                skillType = request.skillType,
-                gender = request.gender
+        val student = profile.student!!
+        return userRepository.save(
+            User(
+                publicId = profile.publicId,
+                studentId = studentId,
+                username = profile.username,
+                name = profile.name,
+                phone = profile.phone,
+                profileImage = profile.profileImage,
+                status = profile.status,
+                role = profile.roles.firstOrNull() ?: "STUDENT",
+                grade = student.grade,
+                room = student.room,
+                number = student.number,
             )
-
-            userRepository.save(user)
-
-        } catch (e: DataIntegrityViolationException) {
-            throw CustomException(AuthError.USER_ALREADY_EXISTS)
-        }
-    }
-
-    override fun reissue(refreshToken: String): JwtResponse {
-        if (!jwtProvider.validateToken(refreshToken)) {
-            throw CustomException(AuthError.INVALID_REFRESH_TOKEN)
-        }
-
-        val userId = jwtProvider.getUserIdFromToken(refreshToken)
-
-        val savedRefreshToken =
-            refreshTokenRepository.get(userId) ?: throw CustomException(AuthError.INVALID_REFRESH_TOKEN)
-
-        if (savedRefreshToken != refreshToken) {
-            throw CustomException(AuthError.INVALID_REFRESH_TOKEN)
-        }
-
-        val newAccessToken = jwtProvider.generateAccessToken(userId)
-
-        return JwtResponse(
-            accessToken = newAccessToken,
-            refreshToken = refreshToken
         )
     }
+
+    private fun buildStudentId(grade: Int, room: Int, number: Int): String =
+        "$grade$room${number.toString().padStart(2, '0')}"
 }

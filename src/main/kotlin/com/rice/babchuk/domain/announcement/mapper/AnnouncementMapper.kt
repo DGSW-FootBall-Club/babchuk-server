@@ -27,7 +27,7 @@ object AnnouncementMapper {
             title = announcement.title,
             content = announcement.content,
             image = announcement.image,
-            author = announcement.author.nickname,
+            author = announcement.author.name,
             createdAt = announcement.createdAt
         )
     }
