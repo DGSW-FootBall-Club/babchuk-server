@@ -1,0 +1,2 @@
+ALTER TABLE announcements
+    MODIFY COLUMN content LONGTEXT NOT NULL;

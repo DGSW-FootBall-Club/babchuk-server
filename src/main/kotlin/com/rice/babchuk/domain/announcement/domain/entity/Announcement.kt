@@ -15,7 +15,7 @@ class Announcement(
     @Column(nullable = false)
     var title: String,
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     var content: String,
 
     @ElementCollection(fetch = FetchType.LAZY)
