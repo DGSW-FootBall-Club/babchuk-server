@@ -6,18 +6,17 @@ import com.rice.babchuk.domain.announcement.dto.response.AnnouncementResponse
 import com.rice.babchuk.domain.user.domain.entity.User
 import org.springframework.stereotype.Component
 
-
 @Component
 object AnnouncementMapper {
     fun toEntity(
         request: AnnouncementRequest,
-        author: User
+        author: User,
     ): Announcement {
         return Announcement(
             title = request.title,
             content = request.content,
-            image = request.image,
-            author = author
+            images = request.images.toMutableList(),
+            author = author,
         )
     }
 
@@ -26,9 +25,9 @@ object AnnouncementMapper {
             id = announcement.id,
             title = announcement.title,
             content = announcement.content,
-            image = announcement.image,
+            images = announcement.images.toList(),
             author = announcement.author.name,
-            createdAt = announcement.createdAt
+            createdAt = announcement.createdAt,
         )
     }
 }

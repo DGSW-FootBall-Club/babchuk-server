@@ -8,8 +8,8 @@ import com.rice.babchuk.domain.announcement.repository.AnnouncementRepository
 import com.rice.babchuk.domain.announcement.service.AnnouncementService
 import com.rice.babchuk.global.error.CustomException
 import com.rice.babchuk.global.security.holder.SecurityHolder
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional(readOnly = true)
@@ -19,6 +19,7 @@ class AnnouncementServiceImpl(
     private val securityHolder: SecurityHolder
 ) : AnnouncementService {
 
+    @Transactional
     override fun createAnnouncement(request: AnnouncementRequest) {
         announcementRepository.save(announcementMapper.toEntity(request, securityHolder.user))
     }
@@ -28,6 +29,7 @@ class AnnouncementServiceImpl(
             .map { announcementMapper.toResponse(it) }
     }
 
+    @Transactional
     override fun updateAnnouncement(announcementId: Long, request: AnnouncementRequest) {
         val announcement = announcementRepository.findById(announcementId)
             .orElseThrow { CustomException(AnnouncementError.NOTICE_NOT_FOUND) }
@@ -39,6 +41,7 @@ class AnnouncementServiceImpl(
         announcement.updateAnnouncement(request)
     }
 
+    @Transactional
     override fun deleteAnnouncement(id: Long) {
         val announcement = announcementRepository.findById(id)
             .orElseThrow { CustomException(AnnouncementError.NOTICE_NOT_FOUND) }

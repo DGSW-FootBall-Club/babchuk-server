@@ -18,19 +18,24 @@ class Announcement(
     @Column(nullable = false, length = 100)
     var content: String,
 
-    @Column(nullable = false, columnDefinition = "LONGTEXT")
-    var image: String,
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+        name = "announcement_images",
+        joinColumns = [JoinColumn(name = "announcement_id")],
+    )
+    @Column(name = "image_url", columnDefinition = "LONGTEXT", nullable = false)
+    @OrderColumn(name = "image_order")
+    var images: MutableList<String> = mutableListOf(),
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     val author: User
 
 ) : BaseTimeEntity() {
-    fun updateAnnouncement(
-        request: AnnouncementRequest
-    ) {
+    fun updateAnnouncement(request: AnnouncementRequest) {
         this.title = request.title
         this.content = request.content
-        this.image = request.image
+        this.images.clear()
+        this.images.addAll(request.images)
     }
 }
