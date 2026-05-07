@@ -15,7 +15,6 @@ object AnnouncementMapper {
         return Announcement(
             title = request.title,
             content = request.content,
-            images = request.images.toMutableList(),
             author = author,
         )
     }
@@ -25,7 +24,6 @@ object AnnouncementMapper {
             id = announcement.id,
             title = announcement.title,
             content = announcement.content,
-            images = announcement.images.toList(),
             author = announcement.author.name,
             createdAt = announcement.createdAt,
         )

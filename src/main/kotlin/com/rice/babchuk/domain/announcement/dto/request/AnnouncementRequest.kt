@@ -10,7 +10,4 @@ data class AnnouncementRequest(
 
     @field:NotBlank
     val content: String,
-
-    @Schema(description = "이미지 URL 목록 (선택, 0~N장)")
-    val images: List<String> = emptyList(),
 )
