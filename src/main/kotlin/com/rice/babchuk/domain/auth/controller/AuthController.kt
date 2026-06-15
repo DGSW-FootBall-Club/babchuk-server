@@ -1,6 +1,8 @@
 package com.rice.babchuk.domain.auth.controller
 
 import com.rice.babchuk.domain.auth.dto.request.DauthLoginRequest
+import com.rice.babchuk.domain.auth.dto.request.LoginRequest
+import com.rice.babchuk.domain.auth.dto.request.SignUpRequest
 import com.rice.babchuk.domain.auth.service.AuthService
 import com.rice.babchuk.global.common.dto.BaseResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -21,4 +23,16 @@ class AuthController(
     @Operation(summary = "DAuth 로그인")
     fun loginWithDauth(@Valid @RequestBody request: DauthLoginRequest) =
         BaseResponse.of(authService.loginWithDauth(request.accessToken), message = "로그인 성공")
+
+    @PostMapping("/login")
+    @Operation(summary = "자체 로그인")
+    fun login(@Valid @RequestBody request: LoginRequest) =
+        BaseResponse.of(authService.login(request), message = "로그인 성공")
+
+    @PostMapping("/signup")
+    @Operation(summary = "자체 회원가입")
+    fun signup(@Valid @RequestBody request: SignUpRequest) =
+        authService.signup(request).let {
+            BaseResponse.of("OK", status = 201, message = "회원가입 성공")
+        }
 }

@@ -3,7 +3,9 @@ package com.rice.babchuk.domain.auth.service.impl
 import com.rice.babchuk.domain.auth.client.DauthClient
 import com.rice.babchuk.domain.auth.dto.DauthStudent
 import com.rice.babchuk.domain.auth.dto.DauthUser
-import com.rice.babchuk.domain.auth.dto.response.DauthLoginResponse
+import com.rice.babchuk.domain.auth.dto.request.LoginRequest
+import com.rice.babchuk.domain.auth.dto.request.SignUpRequest
+import com.rice.babchuk.domain.auth.dto.response.LoginResponse
 import com.rice.babchuk.domain.auth.error.AuthError
 import com.rice.babchuk.domain.auth.service.AuthService
 import com.rice.babchuk.domain.user.domain.entity.User
@@ -12,6 +14,7 @@ import com.rice.babchuk.global.error.CustomException
 import com.rice.babchuk.global.jwt.provider.JwtProvider
 import jakarta.transaction.Transactional
 import org.springframework.core.env.Environment
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
@@ -20,10 +23,11 @@ class AuthServiceImpl(
     private val userRepository: UserRepository,
     private val jwtProvider: JwtProvider,
     private val environment: Environment,
+    private val passwordEncoder: PasswordEncoder,
 ) : AuthService {
 
     @Transactional
-    override fun loginWithDauth(accessToken: String): DauthLoginResponse {
+    override fun loginWithDauth(accessToken: String): LoginResponse {
         val profile = if (accessToken == DEV_TEST_TOKEN && isDevProfile()) {
             DEV_TEST_PROFILE
         } else {
@@ -40,16 +44,53 @@ class AuthServiceImpl(
             number = profile.student.number,
         )
 
-        val user = upsertUser(profile, studentId)
+        val user = upsertDauthUser(profile, studentId)
+        return LoginResponse(accessToken = jwtProvider.generateAccessToken(user.id))
+    }
 
-        val token = jwtProvider.generateAccessToken(user.id)
-        return DauthLoginResponse(accessToken = token)
+    @Transactional
+    override fun login(request: LoginRequest): LoginResponse {
+        val user = userRepository.findByUsername(request.username)
+            ?: throw CustomException(AuthError.INVALID_CREDENTIALS)
+
+        val hash = user.password ?: throw CustomException(AuthError.INVALID_CREDENTIALS)
+        if (!passwordEncoder.matches(request.password, hash)) {
+            throw CustomException(AuthError.INVALID_CREDENTIALS)
+        }
+
+        return LoginResponse(accessToken = jwtProvider.generateAccessToken(user.id))
+    }
+
+    @Transactional
+    override fun signup(request: SignUpRequest) {
+        if (userRepository.existsByUsername(request.username)) {
+            throw CustomException(AuthError.USERNAME_ALREADY_EXISTS)
+        }
+
+        val studentId = buildStudentId(request.grade, request.room, request.number)
+        if (userRepository.existsByStudentId(studentId)) {
+            throw CustomException(AuthError.STUDENT_ID_ALREADY_EXISTS)
+        }
+
+        userRepository.save(
+            User(
+                username = request.username,
+                password = passwordEncoder.encode(request.password),
+                studentId = studentId,
+                name = request.name,
+                profileImage = request.profileImage,
+                role = "STUDENT",
+                grade = request.grade,
+                room = request.room,
+                number = request.number,
+            )
+        )
     }
 
     private fun isDevProfile(): Boolean =
         environment.activeProfiles.contains("dev")
 
-    private fun upsertUser(profile: DauthUser, studentId: String): User {
+    private fun upsertDauthUser(profile: DauthUser, studentId: String): User {
         val existing = userRepository.findByPublicId(profile.publicId)
             ?: userRepository.findByStudentId(studentId)
 
@@ -63,7 +104,6 @@ class AuthServiceImpl(
             User(
                 publicId = profile.publicId,
                 studentId = studentId,
-                username = profile.username,
                 name = profile.name,
                 phone = profile.phone,
                 profileImage = profile.profileImage,

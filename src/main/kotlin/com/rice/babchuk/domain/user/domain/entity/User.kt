@@ -18,6 +18,11 @@ class User(
     @Column(unique = true)
     var publicId: String? = null,
 
+    @Column(unique = true, length = 50)
+    var username: String? = null,
+
+    var password: String? = null,
+
     @Column(nullable = false, unique = true, length = 10)
     var studentId: String,
 
@@ -26,8 +31,6 @@ class User(
 
     @Column(columnDefinition = "LONGTEXT")
     var profileImage: String? = null,
-
-    var username: String? = null,
 
     var phone: String? = null,
 
@@ -65,7 +68,6 @@ class User(
         val student = profile.student!!
         this.publicId = profile.publicId
         this.studentId = studentId
-        this.username = profile.username
         this.name = profile.name
         this.phone = profile.phone
         this.profileImage = profile.profileImage
