@@ -8,4 +8,5 @@ interface AuthService {
     fun loginWithDauth(accessToken: String): LoginResponse
     fun login(request: LoginRequest): LoginResponse
     fun signup(request: SignUpRequest)
+    fun reissue(refreshToken: String): LoginResponse
 }

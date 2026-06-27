@@ -7,6 +7,7 @@ import com.rice.babchuk.domain.auth.dto.request.LoginRequest
 import com.rice.babchuk.domain.auth.dto.request.SignUpRequest
 import com.rice.babchuk.domain.auth.dto.response.LoginResponse
 import com.rice.babchuk.domain.auth.error.AuthError
+import com.rice.babchuk.domain.auth.repository.RefreshTokenRepository
 import com.rice.babchuk.domain.auth.service.AuthService
 import com.rice.babchuk.domain.user.domain.entity.User
 import com.rice.babchuk.domain.user.repository.UserRepository
@@ -24,6 +25,7 @@ class AuthServiceImpl(
     private val jwtProvider: JwtProvider,
     private val environment: Environment,
     private val passwordEncoder: PasswordEncoder,
+    private val refreshTokenRepository: RefreshTokenRepository,
 ) : AuthService {
 
     @Transactional
@@ -45,7 +47,7 @@ class AuthServiceImpl(
         )
 
         val user = upsertDauthUser(profile, studentId)
-        return LoginResponse(accessToken = jwtProvider.generateAccessToken(user.id))
+        return issueTokens(user.id)
     }
 
     @Transactional
@@ -58,7 +60,37 @@ class AuthServiceImpl(
             throw CustomException(AuthError.INVALID_CREDENTIALS)
         }
 
-        return LoginResponse(accessToken = jwtProvider.generateAccessToken(user.id))
+        return issueTokens(user.id)
+    }
+
+    @Transactional
+    override fun reissue(refreshToken: String): LoginResponse {
+        if (!jwtProvider.validateToken(refreshToken)) {
+            throw CustomException(AuthError.INVALID_REFRESH_TOKEN)
+        }
+
+        val userId = jwtProvider.getUserIdFromToken(refreshToken)
+
+        val savedRefreshToken = refreshTokenRepository.get(userId)
+            ?: throw CustomException(AuthError.INVALID_REFRESH_TOKEN)
+
+        if (savedRefreshToken != refreshToken) {
+            throw CustomException(AuthError.INVALID_REFRESH_TOKEN)
+        }
+
+        return LoginResponse(
+            accessToken = jwtProvider.generateAccessToken(userId),
+            refreshToken = refreshToken,
+        )
+    }
+
+    private fun issueTokens(userId: Long): LoginResponse {
+        val accessToken = jwtProvider.generateAccessToken(userId)
+        val refreshToken = jwtProvider.generateRefreshToken(userId)
+
+        refreshTokenRepository.save(userId, refreshToken, jwtProvider.refreshTokenExpiration)
+
+        return LoginResponse(accessToken = accessToken, refreshToken = refreshToken)
     }
 
     @Transactional

@@ -34,7 +34,7 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { authorize ->
                 authorize
-                    .requestMatchers("/auth/dauth", "/auth/login", "/auth/signup").permitAll()
+                    .requestMatchers("/auth/dauth", "/auth/login", "/auth/signup", "/auth/reissue").permitAll()
                     .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                     .requestMatchers("/error").permitAll()
                     .anyRequest().authenticated()

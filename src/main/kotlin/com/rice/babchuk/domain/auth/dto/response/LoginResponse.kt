@@ -6,4 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 data class LoginResponse(
     @Schema(description = "밥축 자체 access token")
     val accessToken: String,
+
+    @Schema(description = "밥축 자체 refresh token")
+    val refreshToken: String,
 )

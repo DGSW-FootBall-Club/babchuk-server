@@ -2,6 +2,7 @@ package com.rice.babchuk.domain.auth.controller
 
 import com.rice.babchuk.domain.auth.dto.request.DauthLoginRequest
 import com.rice.babchuk.domain.auth.dto.request.LoginRequest
+import com.rice.babchuk.domain.auth.dto.request.ReissueRequest
 import com.rice.babchuk.domain.auth.dto.request.SignUpRequest
 import com.rice.babchuk.domain.auth.service.AuthService
 import com.rice.babchuk.global.common.dto.BaseResponse
@@ -35,4 +36,9 @@ class AuthController(
         authService.signup(request).let {
             BaseResponse.of("OK", status = 201, message = "회원가입 성공")
         }
+
+    @PostMapping("/reissue")
+    @Operation(summary = "토큰 재발급")
+    fun reissue(@Valid @RequestBody request: ReissueRequest) =
+        BaseResponse.of(authService.reissue(request.refreshToken), message = "토큰 재발급 성공")
 }

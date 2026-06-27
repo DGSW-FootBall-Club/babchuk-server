@@ -13,4 +13,5 @@ enum class AuthError(
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다"),
     USERNAME_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 사용 중인 아이디입니다"),
     STUDENT_ID_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 등록된 학번입니다"),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 Refresh Token입니다"),
 }
